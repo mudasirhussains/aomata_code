@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CodingExample</string>
+
+    <string name="dialog_title">Do you want to see fullscreen image?</string>
+    <string name="detail">Detail Page</string>
+    <string name="_2">2</string>
+    <string name="_3">3</string>
+    <string name="_4">4</string>
+</resources>
