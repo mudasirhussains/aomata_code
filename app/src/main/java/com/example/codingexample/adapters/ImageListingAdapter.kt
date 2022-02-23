@@ -1,6 +1,5 @@
 package com.example.codingexample.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -14,18 +13,11 @@ import com.example.codingexample.models.Hit
 
 class ImageListingAdapter : RecyclerView.Adapter<ImageListingAdapter.MyViewHolder>() {
     private var items = ArrayList<Hit>()
-   // private lateinit var click: ItemClickListener
-    private lateinit var callback: (String) -> Unit
+    private lateinit var onClick: ItemClickListener
 
-
-    /* fun initializeListener(listener: ItemClickListener) {
-         this.click = listener
-     }*/
-
-
-    fun setDataList(data: ArrayList<Hit>,callback: (String) -> Unit) {
+    fun setDataList(data: ArrayList<Hit>, listener: ItemClickListener) {
         this.items = data
-       // this.callback = data
+        this.onClick = listener
     }
 
     override fun onCreateViewHolder(
@@ -40,19 +32,16 @@ class ImageListingAdapter : RecyclerView.Adapter<ImageListingAdapter.MyViewHolde
     override fun getItemCount() = items.size
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.bind(items[position], callback!!)
+        holder.bind(items[position], onClick)
     }
 
-    class MyViewHolder(val binding: GridListitemBinding) : RecyclerView.ViewHolder(binding.root) {
+    class MyViewHolder(private val binding: GridListitemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(data: Hit, callback: (String) -> Unit) {
+        fun bind(data: Hit,/* callback: (String) -> Unit*/clickListener: ItemClickListener) {
             binding.model = data
             binding.executePendingBindings()
             binding.cardItem.setOnClickListener {
-                Log.d("CLICKE", "bind: CLICKED")
-                //clickListener.onImageCLicked(data.largeImageURL)
-                //clickListener.onImageCLicked(data.largeImageURL)
-                callback(data.largeImageURL)
+                clickListener.onImageCLicked(data.largeImageURL)
             }
         }
     }

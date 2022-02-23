@@ -3,6 +3,7 @@ package com.example.codingexample.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.codingexample.adapters.ImageListingAdapter
+import com.example.codingexample.interfaces.ItemClickListener
 import com.example.codingexample.models.Hit
 import com.example.codingexample.models.PixabayModel
 import com.example.codingexample.repository.MainRepository
@@ -15,8 +16,8 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     private val mainRepository: MainRepository
 ) : ViewModel() {
-    var recyclerListData: MutableLiveData<PixabayModel> = MutableLiveData()
-    var recyclerViewAdapter: ImageListingAdapter = ImageListingAdapter()
+    private var recyclerListData: MutableLiveData<PixabayModel> = MutableLiveData()
+    private var recyclerViewAdapter: ImageListingAdapter = ImageListingAdapter()
     private var loadingError = MutableLiveData<String?>()
     var loading = MutableLiveData<Boolean>()
     private var job: Job? = null
@@ -28,8 +29,8 @@ class MainActivityViewModel @Inject constructor(
         return recyclerViewAdapter
     }
 
-    fun setAdapterData(data: ArrayList<Hit>) {
-        recyclerViewAdapter.setDataList(data)
+    fun setAdapterData(data: ArrayList<Hit>, itemClickListener: ItemClickListener) {
+        recyclerViewAdapter.setDataList(data, itemClickListener)
         recyclerViewAdapter.notifyDataSetChanged()
     }
 

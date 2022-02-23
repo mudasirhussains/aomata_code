@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.codingexample.BR
 import com.example.codingexample.R
-import com.example.codingexample.adapters.ImageListingAdapter
 import com.example.codingexample.databinding.ActivityMainBinding
 import com.example.codingexample.interfaces.ItemClickListener
 import com.example.codingexample.models.Hit
@@ -33,19 +32,11 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ItemClickListener {
     private lateinit var mBinding: ActivityMainBinding
-    private var mAdapter: ImageListingAdapter = ImageListingAdapter()
-
-    //    private lateinit var mViewModel: MainActivityViewModel
-    private var mImagesArrayList: ArrayList<Hit> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel = setCoroutineObserver()
         setBindings(viewModel)
-//        if (isNetworkAvailable(this)) {
-//            apiCalling()
-//        }
-//        setCoroutineObserver()
         callBacks()
     }
 
@@ -70,13 +61,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         }
     }
 
-//    private fun apiCalling() {
-//        mViewModel.getAllImagesFromApi()
-//    }
-
     private fun setBindings(viewModel: MainActivityViewModel) {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        //mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         mBinding.setVariable(BR.viewModel, viewModel)
         mBinding.executePendingBindings()
         setGridAdapter(3)
@@ -87,13 +73,11 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         viewModel.getRecyclerListDataObserver().observe(this, {
             hideProgress()
             if (it != null) {
-                viewModel.setAdapterData(it.hits as ArrayList<Hit>)
-//                mImagesArrayList = it.hits as ArrayList<Hit>
+                viewModel.setAdapterData(it.hits as ArrayList<Hit>,this)
 
             } else {
                 Toast.makeText(this@MainActivity, "Error in fetching data", Toast.LENGTH_LONG)
                     .show()
-
             }
         })
 
@@ -106,15 +90,16 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
                 hideProgress()
             }
         })
-        viewModel.getAllImagesFromApi()
+        if (isNetworkAvailable(this)) {
+            viewModel.getAllImagesFromApi()
+        }
+        else{
+            Toast.makeText(applicationContext, "No Internet available", Toast.LENGTH_SHORT).show()
+        }
         return viewModel
     }
 
     private fun setGridAdapter(spam: Int) {
-//        val gridLayoutManager = GridLayoutManager(applicationContext, spam)
-//        gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
-//        mBinding.recyclerMain.layoutManager = gridLayoutManager
-//        mAdapter.notifyDataSetChanged()
         mBinding.recyclerMain.apply {
             val gridLayoutManager = GridLayoutManager(applicationContext, spam)
             gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -130,13 +115,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         mBinding.progressBar.visibility = View.GONE
     }
 
-    /*override fun onImageCLicked(imageUrl: String) {
-
-        customAlert(imageUrl)
-
-    }*/
-
-    fun customAlert(url: String) {
+    private fun customAlert(url: String) {
         val view: View = LayoutInflater.from(this).inflate(R.layout.option_dialog, null)
         val dialog: Dialog
         val positiveBtn = view.findViewById<Button>(R.id.positiveBtn)
@@ -166,13 +145,12 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     }
 
     private fun startActivityIntent(url: String) {
-        //Toast.makeText(applicationContext, url, Toast.LENGTH_SHORT).show()
         val detailIntent = Intent(applicationContext, DetailActivity::class.java)
         detailIntent.putExtra(Constants.LARGE_IMAGE_URL, url)
         startActivity(detailIntent)
     }
 
     override fun onImageCLicked(imageUrl: String) {
-        TODO("Not yet implemented")
+        customAlert(imageUrl)
     }
 }
