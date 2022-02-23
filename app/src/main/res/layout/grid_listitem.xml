@@ -2,11 +2,23 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <data>
+
+        <variable
+            name="model"
+            type="com.example.codingexample.models.Hit" />
+
+        <variable
+            name="itemClickListener"
+            type="com.example.codingexample.interfaces.ItemClickListener" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cardItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_3sdp">
+        android:layout_margin="@dimen/_3sdp"
+        android:onClick='@{() -> itemClickListener.onImageCLicked(model.largeImageURL)}'>
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imagePreview"
@@ -14,10 +26,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:adjustViewBounds="true"
+            android:layout_margin="@dimen/_5sdp"
             android:minWidth="@dimen/_80sdp"
             android:minHeight="@dimen/_80sdp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background"
+            app:loadGlideImage='@{model.previewURL}'
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

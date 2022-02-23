@@ -13,12 +13,14 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.codingexample.BR
 import com.example.codingexample.R
 import com.example.codingexample.adapters.ImageListingAdapter
 import com.example.codingexample.databinding.ActivityMainBinding
@@ -31,20 +33,21 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ItemClickListener {
     private lateinit var mBinding: ActivityMainBinding
-    private lateinit var mAdapter: ImageListingAdapter
-    private lateinit var mViewModel: MainActivityViewModel
+    private var mAdapter: ImageListingAdapter = ImageListingAdapter()
+
+    //    private lateinit var mViewModel: MainActivityViewModel
     private var mImagesArrayList: ArrayList<Hit> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        setBindings()
-        if (isNetworkAvailable(this)) {
-            apiCalling()
-        }
-        setCoroutineObserver()
+
+        val viewModel = setCoroutineObserver()
+        setBindings(viewModel)
+//        if (isNetworkAvailable(this)) {
+//            apiCalling()
+//        }
+//        setCoroutineObserver()
         callBacks()
     }
-
 
 
     private fun callBacks() {
@@ -67,29 +70,34 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         }
     }
 
-    private fun apiCalling() {
-        mViewModel.getAllImagesFromApi()
-    }
+//    private fun apiCalling() {
+//        mViewModel.getAllImagesFromApi()
+//    }
 
-    private fun setBindings() {
+    private fun setBindings(viewModel: MainActivityViewModel) {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
-        setContentView(mBinding.root)
+        //mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        mBinding.setVariable(BR.viewModel, viewModel)
+        mBinding.executePendingBindings()
+        setGridAdapter(3)
     }
 
-    private fun setCoroutineObserver() {
-        mViewModel.mPixabayResponse.observe(this, {
+    private fun setCoroutineObserver(): MainActivityViewModel {
+        val viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        viewModel.getRecyclerListDataObserver().observe(this, {
+            hideProgress()
             if (it != null) {
-                mImagesArrayList = it.hits as ArrayList<Hit>
-                setGridAdapter(3)
-                showProgress()
+                viewModel.setAdapterData(it.hits as ArrayList<Hit>)
+//                mImagesArrayList = it.hits as ArrayList<Hit>
+
             } else {
-                hideProgress()
+                Toast.makeText(this@MainActivity, "Error in fetching data", Toast.LENGTH_LONG)
+                    .show()
 
             }
         })
 
-        mViewModel.loading.observe(this, { isError ->
+        viewModel.loading.observe(this, { isError ->
             if (isError) {
                 Log.d("UserLoadError", "Exceptions! Error")
                 showProgress()
@@ -98,15 +106,20 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
                 hideProgress()
             }
         })
+        viewModel.getAllImagesFromApi()
+        return viewModel
     }
 
     private fun setGridAdapter(spam: Int) {
-        val gridLayoutManager = GridLayoutManager(applicationContext, spam)
-        gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
-        mBinding.recyclerMain.layoutManager = gridLayoutManager
-        mAdapter = ImageListingAdapter(applicationContext, mImagesArrayList, this)
-        mBinding.recyclerMain.adapter = mAdapter
-        mAdapter.notifyDataSetChanged()
+//        val gridLayoutManager = GridLayoutManager(applicationContext, spam)
+//        gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
+//        mBinding.recyclerMain.layoutManager = gridLayoutManager
+//        mAdapter.notifyDataSetChanged()
+        mBinding.recyclerMain.apply {
+            val gridLayoutManager = GridLayoutManager(applicationContext, spam)
+            gridLayoutManager.orientation = LinearLayoutManager.VERTICAL
+            mBinding.recyclerMain.layoutManager = gridLayoutManager
+        }
     }
 
     private fun showProgress() {
@@ -117,13 +130,13 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         mBinding.progressBar.visibility = View.GONE
     }
 
-    override fun onImageCLicked(imageUrl: String) {
+    /*override fun onImageCLicked(imageUrl: String) {
 
-        exitAlert(imageUrl)
+        customAlert(imageUrl)
 
-    }
+    }*/
 
-    private fun exitAlert(url: String) {
+    fun customAlert(url: String) {
         val view: View = LayoutInflater.from(this).inflate(R.layout.option_dialog, null)
         val dialog: Dialog
         val positiveBtn = view.findViewById<Button>(R.id.positiveBtn)
@@ -157,5 +170,9 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         val detailIntent = Intent(applicationContext, DetailActivity::class.java)
         detailIntent.putExtra(Constants.LARGE_IMAGE_URL, url)
         startActivity(detailIntent)
+    }
+
+    override fun onImageCLicked(imageUrl: String) {
+        TODO("Not yet implemented")
     }
 }

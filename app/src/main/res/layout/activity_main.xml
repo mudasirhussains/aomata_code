@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.codingexample.viewmodels.MainActivityViewModel" />
+    </data>
+
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,13 +26,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTwo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/_2" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnThree"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -34,7 +40,7 @@
                 android:layout_marginEnd="@dimen/_2sdp"
                 android:text="@string/_3" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFour"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,6 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_5sdp"
+            app:setAdapter='@{viewModel.getAdapter()}'
             android:layout_marginBottom="@dimen/_5sdp" />
 
         <ProgressBar
